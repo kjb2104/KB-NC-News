@@ -1,8 +1,12 @@
 # Northcoders News API
 
-For instructions, please head over to [L2C NC News](https://l2c.northcoders.com/courses/be/nc-news).
 
+If you wish to run this and connect to the databases locally, you need to set the environment variables.
 
+Instructions: 
+* Ensure dotenv is installed 
+* Create two files - .env.test and .env.development to store the environment variables.
+* Add PGDATABASE=, with the correct database name for that environment (see /db/setup.sql for the database names).
 
 --- 
 
