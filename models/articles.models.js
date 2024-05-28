@@ -1,5 +1,13 @@
 const db = require('../db/connection.js')
 
+function selectAllArticles(){
+
+
+
+
+
+}
+
 function selectArticleById(article_id){
     return db
     .query("SELECT * FROM articles WHERE article_id = $1;", [article_id])
@@ -13,4 +21,4 @@ function selectArticleById(article_id){
 }
 
 
-module.exports = selectArticleById
+module.exports = { selectArticleById, selectAllArticles }
