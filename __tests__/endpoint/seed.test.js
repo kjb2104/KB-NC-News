@@ -55,7 +55,7 @@ describe("/api/articles", () => {
       .get("/api/articles/9993423")
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("Not Found");
+        expect(response.body.msg).toBe("Article id is not found");
       });
   });
   test("GET:400 sends an appropriate status and error message when given an invalid id", () => {
@@ -63,7 +63,27 @@ describe("/api/articles", () => {
       .get("/api/articles/platypus")
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Bad request");
+        expect(response.body.msg).toBe("Article id does not exist");
+      });
+  });
+  test("should GET: 200 sends an array of all of the articles as an object with two keys", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then((response) => {
+        const { articles } = response.body;
+        expect(articles).toHaveLength(13);
+        articles.forEach((article) => {
+          expect(typeof article.author).toBe("string");
+          expect(typeof article.title).toBe("string");
+          expect(typeof article.article_id).toBe("number");
+          expect(typeof article.topic).toBe("string");
+          expect(typeof article.created_at).toBe("string");
+          expect(typeof article.votes).toBe("number");
+          expect(typeof article.article_img_url).toBe("string");
+          expect(typeof article.comment_count).toBe("string");
+        });
+        expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
 });
@@ -76,14 +96,14 @@ describe("/api", () => {
       .then((response) => {
         const parsedResponse = JSON.parse(response.text);
         const vals = Object.values(parsedResponse);
-        if(vals.length > 0){
-        vals.forEach((obj) => {
-          expect(typeof obj.description).toBe("string");
-          expect(Array.isArray(obj.queries)).toBe(true);
-          expect(typeof obj.exampleResponse).toBe("object");
-        });
-      }
-  });
+        if (vals.length > 0) {
+          vals.forEach((obj) => {
+            expect(typeof obj.description).toBe("string");
+            expect(Array.isArray(obj.queries)).toBe(true);
+            expect(typeof obj.exampleResponse).toBe("object");
+          });
+        }
+      });
   });
 });
 
@@ -93,7 +113,8 @@ describe("/api/*", () => {
       .get("/api/topiczz")
       .expect(404)
       .then((response) => {
-        expect(response.body.msg).toBe("Not Found");
+        const { msg } = response.body;
+        expect(msg).toBe("Not Found");
       });
   });
 });
