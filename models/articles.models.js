@@ -28,9 +28,6 @@ function selectArticleComments(article_id) {
       [article_id]
     )
     .then((result) => {
-      if (result.rows.length === 0) {
-        return Promise.reject({ status: 200, msg: [] });
-      }
       return result.rows;
     });
 }
@@ -46,9 +43,24 @@ function checkArticleID(article_id) {
     });
 }
 
+
+function insertComment(body){
+  
+  return db
+    .query(
+      "INSERT INTO comments (body, author, article_id, votes, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
+      [body.body, body.author, body.article_id, body.votes, body.created_at]
+    )
+    .then((result) => {
+      return result.rows[0];
+    });
+};
+
+
 module.exports = {
   selectArticleById,
   selectAllArticles,
   selectArticleComments,
   checkArticleID,
+  insertComment,
 };

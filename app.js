@@ -6,6 +6,7 @@ const {
   getArticle,
   getAllArticles,
   getArticleComments,
+  postArticleComment
 } = require("./controllers/articles.controller.js");
 app.use(express.json());
 
@@ -19,8 +20,11 @@ app.get("/api/articles/:article_id", getArticle);
 
 app.get("/api/articles/:article_id/comments", getArticleComments);
 
+app.post("/api/articles/:article_id/comments", postArticleComment)
+
 app.use((err, req, res, next) => {
-  if (err.msg === "Article id is not found") {
+
+  if (err.status === 404) {
     res.status(404).send({ msg: "Article id is not found" });
   }
   next(err);
@@ -33,12 +37,6 @@ app.use((err, req, res, next) => {
   next(err);
 });
 
-app.use((err, req, res, next) => {
-  if (err.status === 200) {
-    res.status(200).send([]);
-  }
-  next(err);
-});
 
 app.all("*", (req, res) => {
   res.status(404).send({ msg: "Not Found" });
