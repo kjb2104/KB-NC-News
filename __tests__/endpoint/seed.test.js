@@ -63,7 +63,7 @@ describe("/api/articles", () => {
       .get("/api/articles/platypus")
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Article id does not exist");
+        expect(response.body.msg).toBe("Input does not exist");
       });
   });
   test("should GET: 200 sends an array of all of the articles as an object with two keys", () => {
@@ -81,12 +81,61 @@ describe("/api/articles", () => {
           expect(typeof article.created_at).toBe("string");
           expect(typeof article.votes).toBe("number");
           expect(typeof article.article_img_url).toBe("string");
-          expect(typeof article.comment_count).toBe("string");
+          expect(typeof article.comment_count).toBe("number");
         });
         expect(articles).toBeSortedBy("created_at", { descending: true });
       });
   });
+})
+
+describe('/api/articles/:article_id/comments', () => {
+  test('GET:200 sends an array of comments belong to a requested-for article_id to the client', () => {
+    return request(app)
+      .get('/api/articles/1/comments')
+      .expect(200)
+      .then((response) => {
+        const { comments } = response.body
+        expect(comments.length).toBe(11);
+        comments.forEach((comment) => {
+          expect(typeof comment.comment_id).toBe('number');
+          expect(typeof comment.votes).toBe('number');
+          expect(typeof comment.created_at).toBe('string');
+          expect(typeof comment.author).toBe('string');
+          expect(typeof comment.body).toBe('string');
+          expect(comment.article_id).toBe(1);
+        });
+        expect(comments).toBeSortedBy('created_at', {descending: true})
+      });
+  });
+  test('GET:200 sends an appropriate status and an empty array when passed an ID which does not have any comments', () => {
+    return request(app)
+      .get('/api/articles/8/comments')
+      .expect(200)
+      .then((response) => {
+        const comments = response.body
+        expect(comments).toEqual([])
+      })
+    })
+  test('GET:404 sends an appropriate status and error message when given a valid but non-existent id', () => {
+    return request(app)
+      .get('/api/articles/9785/comments')
+      .expect(404)
+      .then((response) => {
+        const { msg } = response.body
+        expect(msg).toBe('Article id is not found');
+      });
+  });
+  test('GET:400 responds with an appropriate error message when given an invalid id', () => {
+    return request(app)
+      .get('/api/articles/not-an-id/comments')
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body
+        expect(msg).toBe('Input does not exist');
+      });
+  });
 });
+
 
 describe("/api", () => {
   test("should GET: 200 responds with an object which describes all the endpoints on this API", () => {
