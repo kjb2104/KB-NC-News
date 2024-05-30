@@ -29,12 +29,11 @@ describe("/api/topics", () => {
   });
 });
 describe("/api/users", () => {
-  test.only("should GET: 200 sends an array of all of the users as an object with three keys", () => {
+  test("should GET: 200 sends an array of all of the users as an object with three keys", () => {
     return request(app)
       .get("/api/users")
       .expect(200)
       .then((response) => {
-        console.log(response)
         expect(response.body.users).toHaveLength(4);
         response.body.users.forEach((user) => {
           expect(typeof user.name).toBe("string");
@@ -99,6 +98,45 @@ describe("/api/articles", () => {
           expect(typeof article.comment_count).toBe("number");
         });
         expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+    })
+
+      test("GET: 200 sends an array of all of the articles filtered by the queried for topic", () => {
+        return request(app)
+          .get("/api/articles?topic=cats")
+          .expect(200)
+          .then((response) => {
+            const { articles } = response.body;
+            expect(articles).toHaveLength(1);
+            articles.forEach((article) => {
+              expect(typeof article.author).toBe("string");
+              expect(typeof article.title).toBe("string");
+              expect(typeof article.article_id).toBe("number");
+              expect(typeof article.topic).toBe("string");
+              expect(typeof article.created_at).toBe("string");
+              expect(typeof article.votes).toBe("number");
+              expect(typeof article.article_img_url).toBe("string");
+              expect(typeof article.comment_count).toBe("number");
+            });
+            expect(articles).toBeSortedBy("created_at", { descending: true });
+          });
+  });
+  test("GET:400 responds with an appropriate error message when passed an invalid query", () => {
+    return request(app)
+      .get("/api/articles?topic=yoshi")
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Not a valid query");
+      });
+  });
+  test("GET:404 responds with an appropriate error message when passed a valid query that doesn't have any articles about it in the database", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(404)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("No articles available for this topic");
       });
   });
   test("PATCH: 201 updates an existing article by updating the votes property and responds with the updated article", () => {
@@ -167,7 +205,7 @@ describe("/api/articles", () => {
       .send(newPatch)
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Not a valid input");
+        expect(response.body.msg).toBe("Input not structured correctly");
       });
   });
 });
@@ -251,7 +289,7 @@ describe("/api/articles/:article_id/comments", () => {
       .send(newComment)
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Not a valid input");
+        expect(response.body.msg).toBe("Input not structured correctly");
       });
   });
   test("POST:404 sends an appropriate status and error message when given a valid but non-existent id", () => {
