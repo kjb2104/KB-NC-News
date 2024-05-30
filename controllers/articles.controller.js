@@ -28,7 +28,9 @@ function getArticle(req, res, next) {
     .then((article) => {
       res.status(200).send({ article });
     })
-    .catch(next);
+    .catch((err) => {
+      next(err);
+    });
 }
 
 function getArticleComments(req, res, next) {
