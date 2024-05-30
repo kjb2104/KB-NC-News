@@ -66,7 +66,25 @@ function updateArticle(article_id, body) {
       return result.rows;
     });
 }
+function checkCommentId(comment_id) {
+  return db
+    .query("SELECT * FROM comments WHERE comment_id = $1", [comment_id])
+    .then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({ status: 404, msg: "Comment Id is not found" });
+      }
+      return result.rows;
+    });
+  P;
+}
 
+function removeCommentById(comment_id) {
+  return db
+    .query("DELETE FROM comments WHERE comment_id = $1;", [comment_id])
+    .then((result) => {
+      return result.rowCount;
+    });
+}
 module.exports = {
   selectArticleById,
   selectAllArticles,
@@ -74,4 +92,6 @@ module.exports = {
   checkArticleID,
   insertComment,
   updateArticle,
+  checkCommentId,
+  removeCommentById,
 };

@@ -8,6 +8,7 @@ const {
   getArticleComments,
   postArticleComment,
   patchArticle,
+  deleteComment,
 } = require("./controllers/articles.controller.js");
 app.use(express.json());
 
@@ -24,12 +25,14 @@ app.get("/api/articles/:article_id/comments", getArticleComments);
 app.post("/api/articles/:article_id/comments", postArticleComment);
 
 app.patch("/api/articles/:article_id", patchArticle),
-  app.use((err, req, res, next) => {
-    if (err.status === 404) {
-      res.status(404).send({ msg: "Article id is not found" });
-    }
-    next(err);
-  });
+  app.delete("/api/comments/:comment_id", deleteComment);
+
+app.use((err, req, res, next) => {
+  if (err.msg) {
+    res.status(404).send({ msg: err.msg });
+  }
+  next(err);
+});
 
 app.use((err, req, res, next) => {
   if (err.code) {
