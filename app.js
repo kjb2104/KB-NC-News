@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 const getTopics = require("./controllers/topics.controllers.js");
-const getUsers = require("./controllers/users.controllers.js")
+const getUsers = require("./controllers/users.controllers.js");
 const getApi = require("./controllers/api.controllers.js");
 const {
   getArticle,
@@ -29,23 +29,26 @@ app.get("/api/articles/:article_id/comments", getArticleComments);
 app.post("/api/articles/:article_id/comments", postArticleComment);
 
 app.patch("/api/articles/:article_id", patchArticle),
-
-app.delete("/api/comments/:comment_id", deleteComment);
-
-
+  app.delete("/api/comments/:comment_id", deleteComment);
 
 app.use((err, req, res, next) => {
   if (err.msg) {
-    res.status(404).send({ msg: err.msg });
+    res.status(err.status).send({ msg: err.msg });
   }
   next(err);
 });
 
 app.use((err, req, res, next) => {
-  if (err.code) {
+  if (err.code === "22P02") {
     res.status(400).send({ msg: "Not a valid input" });
   }
   next(err);
+});
+
+app.use((err, req, res, next) => {
+  if (err.code === "23502") {
+    res.status(400).send({ msg: "Input not structured correctly" });
+  }
 });
 
 app.all("*", (req, res) => {

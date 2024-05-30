@@ -1,14 +1,39 @@
 const { promises } = require("supertest/lib/test.js");
 const db = require("../db/connection.js");
 
-function selectAllArticles() {
-  return db
-    .query(
-      "SELECT articles.*, count(comments.article_id) :: INT AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id GROUP BY articles.article_id ORDER BY created_at DESC"
-    )
-    .then((result) => {
+function selectAllArticles(topic) {
+  const possibleQueries = ["mitch", "cats", "paper"];
+
+  if (topic && !possibleQueries.includes(topic)) {
+    return Promise.reject({ status: 400, msg: "Not a valid query" });
+  }
+
+  let queryVals = [];
+
+  let sqlString =
+    "SELECT articles.*, count(comments.article_id) :: INT AS comment_count FROM articles LEFT JOIN comments ON articles.article_id = comments.article_id";
+  let endString = " GROUP BY articles.article_id ORDER BY created_at DESC";
+
+  if (topic) {
+    sqlString += " WHERE topic = $1";
+    queryVals.push(topic);
+    const finalStr = (sqlString += endString);
+    return db.query(finalStr, queryVals).then((result) => {
+      if (result.rows.length === 0) {
+        return Promise.reject({
+          status: 404,
+          msg: "No articles available for this topic",
+        });
+      }
       return result.rows;
     });
+  }
+
+  const finalStr = sqlString += endString
+
+  return db.query(finalStr).then((result) => {
+    return result.rows;
+  });
 }
 
 function selectArticleById(article_id) {
