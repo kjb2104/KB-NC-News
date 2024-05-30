@@ -5,6 +5,7 @@ const {
   selectArticleComments,
   checkArticleID,
   insertComment,
+  updateArticle,
 } = require("../models/articles.models.js");
 
 function getAllArticles(req, res, next) {
@@ -51,14 +52,27 @@ function postArticleComment(req, res, next) {
 
   return Promise.all([checkArticleID(article_id), insertComment(body)])
     .then((result) => {
-      if (result[0].length === 0) {
-        res.status(404).send({ msg: "Article id is not found" });
-      }
       const comment = result[1];
       res.status(201).send({ comment });
     })
     .catch((err) => {
-      console.log(err)
+      next(err);
+    });
+}
+
+function patchArticle(req, res, next) {
+  const { body } = req;
+  const { article_id } = req.params;
+
+  return Promise.all([
+    checkArticleID(article_id),
+    updateArticle(article_id, body),
+  ])
+    .then((result) => {
+      const article = result[1][0];
+      res.status(201).send({ article });
+    })
+    .catch((err) => {
       next(err);
     });
 }
@@ -68,4 +82,5 @@ module.exports = {
   getAllArticles,
   getArticleComments,
   postArticleComment,
+  patchArticle,
 };

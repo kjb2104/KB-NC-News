@@ -1,3 +1,4 @@
+const { promises } = require("supertest/lib/test.js");
 const db = require("../db/connection.js");
 
 function selectAllArticles() {
@@ -36,26 +37,35 @@ function checkArticleID(article_id) {
   return db
     .query("SELECT * FROM articles WHERE article_id = $1", [article_id])
     .then((result) => {
-      if (result.rows === 0) {
+      if (result.rows.length === 0) {
         return Promise.reject({ status: 404, msg: "Article id is not found" });
       }
       return result.rows;
     });
 }
 
-
-function insertComment(body){
-  
+function insertComment(body) {
   return db
     .query(
       "INSERT INTO comments (body, author, article_id, votes, created_at) VALUES ($1, $2, $3, $4, $5) RETURNING *;",
       [body.body, body.author, body.article_id, body.votes, body.created_at]
     )
     .then((result) => {
-      return result.rows[0];
+      const body = result.rows[0];
+      return body;
     });
-};
+}
 
+function updateArticle(article_id, body) {
+  return db
+    .query(
+      "UPDATE articles SET votes = votes + $1 WHERE article_id = $2 RETURNING *",
+      [body.inc_votes, article_id]
+    )
+    .then((result) => {
+      return result.rows;
+    });
+}
 
 module.exports = {
   selectArticleById,
@@ -63,4 +73,5 @@ module.exports = {
   selectArticleComments,
   checkArticleID,
   insertComment,
+  updateArticle,
 };
