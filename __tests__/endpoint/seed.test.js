@@ -28,7 +28,22 @@ describe("/api/topics", () => {
       });
   });
 });
-
+describe("/api/users", () => {
+  test.only("should GET: 200 sends an array of all of the users as an object with three keys", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        console.log(response)
+        expect(response.body.users).toHaveLength(4);
+        response.body.users.forEach((user) => {
+          expect(typeof user.name).toBe("string");
+          expect(typeof user.username).toBe("string");
+          expect(typeof user.avatar_url).toBe("string");
+        });
+      });
+  });
+});
 describe("/api/articles", () => {
   test("GET:200 sends a single article to the client that has the requested-for id", () => {
     return request(app)
