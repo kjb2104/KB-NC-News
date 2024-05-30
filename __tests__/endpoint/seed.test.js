@@ -285,6 +285,28 @@ describe("/api/articles/:article_id/comments", () => {
   });
 });
 
+describe("/api/comments", () => {
+  test("DELETE: 204 deletes the specified comment and sends no body back", () => {
+    return request(app).delete("/api/comments/3").expect(204);
+  });
+  test("DELETE:400 responds with an appropriate status and error message when given a non-existent comment id", () => {
+    return request(app)
+      .delete("/api/comments/discombobulated")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not a valid input");
+      });
+  });
+  test("DELETE:404 sends an appropriate status and error message when given a valid but non-existent id", () => {
+    return request(app)
+      .delete("/api/comments/9999")
+      .expect(404)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Comment Id is not found");
+      });
+  });
+});
 describe("/api", () => {
   test("should GET: 200 responds with an object which describes all the endpoints on this API", () => {
     return request(app)

@@ -6,6 +6,8 @@ const {
   checkArticleID,
   insertComment,
   updateArticle,
+  checkCommentId,
+  removeCommentById,
 } = require("../models/articles.models.js");
 
 function getAllArticles(req, res, next) {
@@ -77,10 +79,26 @@ function patchArticle(req, res, next) {
     });
 }
 
+function deleteComment(req, res, next) {
+  const { comment_id } = req.params;
+
+  return Promise.all([
+    checkCommentId(comment_id),
+    removeCommentById(comment_id),
+  ])
+    .then((result) => {
+      return res.status(204).send();
+    })
+    .catch((err) => {
+      next(err);
+    });
+}
+
 module.exports = {
   getArticle,
   getAllArticles,
   getArticleComments,
   postArticleComment,
   patchArticle,
+  deleteComment,
 };
