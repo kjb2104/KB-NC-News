@@ -63,10 +63,10 @@ describe("/api/articles", () => {
       .get("/api/articles/platypus")
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Input does not exist");
+        expect(response.body.msg).toBe("Not a valid input");
       });
   });
-  test("should GET: 200 sends an array of all of the articles as an object with two keys", () => {
+  test("GET: 200 sends an array of all of the articles as an object with two keys", () => {
     return request(app)
       .get("/api/articles")
       .expect(200)
@@ -84,6 +84,75 @@ describe("/api/articles", () => {
           expect(typeof article.comment_count).toBe("number");
         });
         expect(articles).toBeSortedBy("created_at", { descending: true });
+      });
+  });
+  test("PATCH: 201 updates an existing article by updating the votes property and responds with the updated article", () => {
+    const newPatch = {
+      inc_votes: 5,
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newPatch)
+      .expect(201)
+      .then((response) => {
+        const { article } = response.body;
+        expect(article).toEqual({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 105,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        });
+      });
+  });
+  test("PATCH:400 sends an appropriate status and error message when given an invalid id", () => {
+    const newPatch = {
+      inc_votes: 5,
+    };
+    return request(app)
+      .patch("/api/articles/platypus")
+      .send(newPatch)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not a valid input");
+      });
+  });
+  test("PATCH:404 sends an appropriate status and error message when given a valid but non-existent id", () => {
+    const newPatch = {
+      inc_votes: 5,
+    };
+    return request(app)
+      .patch("/api/articles/9423")
+      .send(newPatch)
+      .expect(404)
+      .then((response) => {
+        expect(response.body.msg).toBe("Article id is not found");
+      });
+  });
+  test("PATCH:400 responds with an appropriate status and error message when provided with a bad patch request that does not provide datatypes that align with the database's expectations", () => {
+    const newPatch = {
+      inc_votes: "five",
+    };
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newPatch)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not a valid input");
+      });
+  });
+  test("PATCH:400 responds with an appropriate status and error message when provided with a bad patch that is not structured correctly", () => {
+    const newPatch = {};
+    return request(app)
+      .patch("/api/articles/1")
+      .send(newPatch)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not a valid input");
       });
   });
 });
@@ -138,19 +207,36 @@ describe("/api/articles/:article_id/comments", () => {
         expect(response.body.comment.body).toBe("Eloquent platypi");
       });
   });
-  test("POST:400 responds with an appropriate status and error message when provided with a bad comment (non-existent username)", () => {
+
+  test("POST:400 responds with an appropriate status and error message when provided with a bad comment that does not provide datatypes that align with the database's expectations", () => {
+    const newComment = {
+      body: false,
+      author: "icellusedkars",
+      article_id: 1,
+      votes: "ketchup",
+      created_at: "2020-01-01T03:08:00.000Z",
+    };
     return request(app)
       .post("/api/articles/1/comments")
-      .send({
-        body: "Eloquent platypi",
-        author: "Tyler Durden",
-        article_id: 1,
-        votes: 2,
-        created_at: "2020-01-01T03:08:00.000Z",
-      })
+      .send(newComment)
       .expect(400)
       .then((response) => {
-        expect(response.body.msg).toBe("Input does not exist");
+        expect(response.body.msg).toBe("Not a valid input");
+      });
+  });
+  test("POST:400 responds with an appropriate status and error message when provided with a bad comment that is not structured correctly", () => {
+    const newComment = {
+      author: "icellusedkars",
+      article_id: 1,
+      votes: 2,
+      created_at: "2020-01-01T03:08:00.000Z",
+    };
+    return request(app)
+      .post("/api/articles/1/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        expect(response.body.msg).toBe("Not a valid input");
       });
   });
   test("POST:404 sends an appropriate status and error message when given a valid but non-existent id", () => {
@@ -160,6 +246,23 @@ describe("/api/articles/:article_id/comments", () => {
       .then((response) => {
         const { msg } = response.body;
         expect(msg).toBe("Article id is not found");
+      });
+  });
+  test("POST:400 responds with an appropriate error message when given an invalid id", () => {
+    const newComment = {
+      body: "Eloquent platypi",
+      author: "icellusedkars",
+      article_id: 1,
+      votes: 2,
+      created_at: "2020-01-01T03:08:00.000Z",
+    };
+    return request(app)
+      .post("/api/articles/not-an-id/comments")
+      .send(newComment)
+      .expect(400)
+      .then((response) => {
+        const { msg } = response.body;
+        expect(msg).toBe("Not a valid input");
       });
   });
   test("GET:404 sends an appropriate status and error message when given a valid but non-existent id", () => {
@@ -177,7 +280,7 @@ describe("/api/articles/:article_id/comments", () => {
       .expect(400)
       .then((response) => {
         const { msg } = response.body;
-        expect(msg).toBe("Input does not exist");
+        expect(msg).toBe("Not a valid input");
       });
   });
 });

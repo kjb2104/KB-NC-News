@@ -6,7 +6,8 @@ const {
   getArticle,
   getAllArticles,
   getArticleComments,
-  postArticleComment
+  postArticleComment,
+  patchArticle,
 } = require("./controllers/articles.controller.js");
 app.use(express.json());
 
@@ -20,23 +21,22 @@ app.get("/api/articles/:article_id", getArticle);
 
 app.get("/api/articles/:article_id/comments", getArticleComments);
 
-app.post("/api/articles/:article_id/comments", postArticleComment)
+app.post("/api/articles/:article_id/comments", postArticleComment);
 
-app.use((err, req, res, next) => {
-
-  if (err.status === 404) {
-    res.status(404).send({ msg: "Article id is not found" });
-  }
-  next(err);
-});
+app.patch("/api/articles/:article_id", patchArticle),
+  app.use((err, req, res, next) => {
+    if (err.status === 404) {
+      res.status(404).send({ msg: "Article id is not found" });
+    }
+    next(err);
+  });
 
 app.use((err, req, res, next) => {
   if (err.code) {
-    res.status(400).send({ msg: "Input does not exist" });
+    res.status(400).send({ msg: "Not a valid input" });
   }
   next(err);
 });
-
 
 app.all("*", (req, res) => {
   res.status(404).send({ msg: "Not Found" });
