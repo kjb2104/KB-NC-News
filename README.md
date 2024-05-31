@@ -2,7 +2,7 @@
 
 #### NC-News
 
-Welcome to NC-News. This app runs a series of endpoints for a database called nc_news. The database is a collective of news topics, articles, comments and users. This app allows users to access, add to, update and delete content in the database.
+Welcome to NC-News. This app runs a series of endpoints for a database called nc_news. The database is a collective of news topics, articles, comments and users. With the app, users can access, add to, update and delete content in the database.
 
 ###Instructions:
 
@@ -67,13 +67,3 @@ https://newsbase.onrender.com/api
 
 This portfolio project was created as part of a Digital Skills Bootcamp in Software Engineering provided by [Northcoders](https://northcoders.com/)
 
-
-
-
-You should include:
-
-A link to the hosted version.
-A summary of what the project is.
-Clear instructions of how to clone, install dependencies, seed local database, and run tests.
-Information about how to create the two .env files.
-The minimum versions of Node.js, and Postgres needed to run the project.
