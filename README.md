@@ -4,7 +4,7 @@
 
 Welcome to NC-News. This app runs a series of endpoints for a database called nc_news. The database is a collective of news topics, articles, comments and users. With the app, users can access, add to, update and delete content in the database.
 
-###Instructions:
+### Instructions:
 
 To clone this repo, type the following into your terminal: git clone https://github.com/kjb2104/KB-NC-News.git
 
@@ -14,7 +14,7 @@ After cloning you need to set the environment variables:
 * Locate the names of test and development databases on the setup.sql file.
 * Add PGDATABASE= with the correct database name to the corresponding .env file.
 
-##Installation:
+## Installation:
 
 **Run npm install** to install the dependencies listed in the package.json file including:
 
@@ -36,7 +36,7 @@ pg - 8.11.5
 
 You will also need **psql** installed to run this application. Ensure that the service is running before attempting to seed the database or it will throw an error.
 
-##Seeding:
+## Seeding:
 
 Now that you have installed all the required packages, check that the database is seeding correctly.
 
@@ -50,7 +50,7 @@ The api was built using both Supertest and Jest to facilitate integration and un
 
 This should run both the utils function tests for the seed file and the test suite for the app.
 
-##Accessing Hosted api:
+## Accessing Hosted api:
 
 The app has also been hosted using a combination of Superbase and Render.
 
