@@ -122,22 +122,22 @@ describe("/api/articles", () => {
             expect(articles).toBeSortedBy("created_at", { descending: true });
           });
   });
-  test("GET:400 responds with an appropriate error message when passed an invalid query", () => {
+  test("GET:404 responds with an appropriate error message when passed an invalid query", () => {
     return request(app)
       .get("/api/articles?topic=yoshi")
-      .expect(400)
+      .expect(404)
       .then((response) => {
         const { msg } = response.body;
         expect(msg).toBe("Not a valid query");
       });
   });
-  test("GET:404 responds with an appropriate error message when passed a valid query that doesn't have any articles about it in the database", () => {
+  test("GET:200 responds with an empty array when passed a topic query that is valid but there are no articles on it", () => {
     return request(app)
       .get("/api/articles?topic=paper")
-      .expect(404)
+      .expect(200)
       .then((response) => {
-        const { msg } = response.body;
-        expect(msg).toBe("No articles available for this topic");
+        const { articles } = response.body;
+        expect(articles).toEqual([])
       });
   });
   test("PATCH: 201 updates an existing article by updating the votes property and responds with the updated article", () => {

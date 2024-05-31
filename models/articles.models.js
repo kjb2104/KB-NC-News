@@ -2,10 +2,10 @@ const { promises } = require("supertest/lib/test.js");
 const db = require("../db/connection.js");
 
 function selectAllArticles(topic) {
-  const possibleQueries = ["mitch", "cats", "paper"];
+  const possibleQueries = ["football", "coding", "cooking", "cats", "paper", "mitch"];
 
   if (topic && !possibleQueries.includes(topic)) {
-    return Promise.reject({ status: 400, msg: "Not a valid query" });
+    return Promise.reject({ status: 404, msg: "Not a valid query" });
   }
 
   let queryVals = [];
@@ -19,12 +19,7 @@ function selectAllArticles(topic) {
     queryVals.push(topic);
     const finalStr = (sqlString += endString);
     return db.query(finalStr, queryVals).then((result) => {
-      if (result.rows.length === 0) {
-        return Promise.reject({
-          status: 404,
-          msg: "No articles available for this topic",
-        });
-      }
+    
       return result.rows;
     });
   }
